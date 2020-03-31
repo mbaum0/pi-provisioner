@@ -47,10 +47,10 @@ with open(os.path.join(selected_drive+':', 'ssh'), 'wb'):
     pass
 
 print(' - Creating wpa_supplicant file')
-with open(os.path.join(selected_drive+':', 'wpa_supplicant'), 'w') as wpas_file:
-    wpas_file.write("country=US\n")
+with open(os.path.join(selected_drive+':', 'wpa_supplicant.conf'), 'w') as wpas_file:
     wpas_file.write("ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n")
     wpas_file.write("update_config=1\n")
+    wpas_file.write("country=US\n")
     wpas_file.write("network={\n")
     wpas_file.write("  ssid=\"%s\"\n" % net_ssid)
     wpas_file.write("  psk=\"%s\"\n" % net_pass)
