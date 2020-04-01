@@ -1,22 +1,41 @@
 from subprocess import check_output
 import os
+import sys
 
-# get list of drives (windows DOS)
-output = check_output("wmic logicaldisk get caption", shell=True).decode()
+WINDOWS_OS = False
 
-# remove CR, colons, and spaces
-output = output.replace(' ', '').replace('\r','').replace(':','')
+if os.name == 'nt':
+    WINDOWS_OS = True
+    print('Detected OS: WINDOWS')
+elif os.name == 'posix':
+    WINDOWS_OS = False
+    print('Detected OS: LINUX')
+else:
+    print('Unsupported OS detected. Exiting')
+    print(os.name)
+    sys.exit(1)
 
-# make list of drives by newlines, remove first entry (text from cmd)
-output = output.split('\n')[1:]
 
-# sometimes empty entries show up if drive is not mounted (I think)
-# this removes any empty entries
-drives = list(filter(None, output))
+if WINDOWS_OS:
+    # get list of drives (windows DOS)
+    output = check_output("wmic logicaldisk get caption", shell=True).decode()
+
+    # remove CR, colons, and spaces
+    output = output.replace(' ', '').replace('\r','').replace(':','')
+
+    # make list of drives by newlines, remove first entry (text from cmd)
+    output = output.split('\n')[1:]
+
+    # sometimes empty entries show up if drive is not mounted (I think)
+    # this removes any empty entries
+    drives = list(filter(None, output))
+
+else:
+    # way easier to get mounted drives in linux:)
+    drives = os.listdir('/mnt')
 
 
-# setup a drive picker
-
+# let the user select a drive
 selected_drive = None
 
 while selected_drive not in drives:
@@ -24,12 +43,13 @@ while selected_drive not in drives:
     print('Available drives are: ', end=' ')
     
     for i in range(len(drives)):
+        drives[i] = drives[i].lower()
         if i < len(drives) -1:
             print(drives[i], end=', ')
         else:
             print(drives[i])
 
-    selected_drive = input('Enter the boot partition drive: ').upper()
+    selected_drive = input('Enter the boot partition drive: ').lower()
 
     if (selected_drive in drives):
         break
